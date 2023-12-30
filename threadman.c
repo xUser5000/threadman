@@ -100,6 +100,10 @@ void threadman_wait(threadman_pool_t *pool) {
 }
 
 void threadman_pool_free(threadman_pool_t *pool) {
+    if (pool == NULL) {
+        return;
+    }
+    
     pthread_mutex_lock(&pool->pool_mutex);
     pool->terminate_workers = true;
     pthread_mutex_unlock(&pool->pool_mutex);
