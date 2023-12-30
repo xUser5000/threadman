@@ -5,6 +5,24 @@
 
 #include "threadman.h"
 
+typedef struct {
+    threadman_func_t func;
+    void *args;
+    threadman_task_status_t status;
+} threadman_task_t;
+
+struct threadman_pool_t {
+    threadman_task_t *tasks[MAX_TASKS];
+    int task_count;
+    pthread_t threads[MAX_THREADS];
+    int thread_count;
+    int pending_tasks_count;
+    bool terminate_workers;
+    pthread_cond_t worker_cond;
+    pthread_cond_t pool_cond;
+    pthread_mutex_t pool_mutex;
+};
+
 void *worker_func(void *arg) {
     threadman_pool_t *pool = (threadman_pool_t *) arg;
     while (true) {
@@ -59,6 +77,7 @@ threadman_pool_t *threadman_pool_create(int thread_count) {
     pool->pending_tasks_count = 0;
     pool->thread_count = thread_count;
     pool->terminate_workers = false;
+    
     for (int i = 0; i < thread_count; i++) {
         pthread_create(&pool->threads[i], NULL, worker_func, (void *) pool);
     }
