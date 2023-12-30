@@ -91,11 +91,9 @@ bool threadman_submit_task(threadman_pool_t *pool, threadman_func_t func, void* 
 
 void threadman_wait(threadman_pool_t *pool) {
     pthread_mutex_lock(&pool->pool_mutex);
-    if (pool->pending_tasks_count == 0) {
-        pthread_mutex_unlock(&pool->pool_mutex);
-        return;
+    while (pool->pending_tasks_count != 0) {
+        pthread_cond_wait(&pool->pool_cond, &pool->pool_mutex);
     }
-    pthread_cond_wait(&pool->pool_cond, &pool->pool_mutex);
     pthread_mutex_unlock(&pool->pool_mutex);
 }
 
