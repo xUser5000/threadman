@@ -22,7 +22,7 @@ typedef struct threadman_task {
 
 typedef struct threadman_pool {
     threadman_task_t *tasks[MAX_TASKS];
-    int tasks_count;
+    int task_count;
     pthread_t threads[MAX_THREADS];
     int thread_count;
     int pending_tasks_count;

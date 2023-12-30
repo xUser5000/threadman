@@ -10,7 +10,7 @@ void *worker_func(void *arg) {
     while (true) {
         pthread_mutex_lock(&pool->pool_mutex);
         threadman_task_t *task = NULL;
-        for (int i = 0; i < pool->tasks_count; i++) {
+        for (int i = 0; i < pool->task_count; i++) {
             if (pool->tasks[i]->status == QUEUED) {
                 task = pool->tasks[i];
                 break;
@@ -59,7 +59,7 @@ threadman_pool_t *threadman_pool_create(int thread_count) {
 bool threadman_submit_task(threadman_pool_t *pool, threadman_func_t func, void* args) {
     pthread_mutex_lock(&pool->pool_mutex);
 
-    if (pool->tasks_count == MAX_TASKS) {
+    if (pool->task_count == MAX_TASKS) {
         pthread_mutex_unlock(&pool->pool_mutex);
         return false;
     }
@@ -69,8 +69,8 @@ bool threadman_submit_task(threadman_pool_t *pool, threadman_func_t func, void* 
     task->args = args;
     task->status = QUEUED;
     
-    pool->tasks[pool->tasks_count] = task;
-    pool->tasks_count++;
+    pool->tasks[pool->task_count] = task;
+    pool->task_count++;
     pool->pending_tasks_count++;
 
     pthread_mutex_unlock(&pool->pool_mutex);

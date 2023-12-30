@@ -15,10 +15,10 @@ void basic_helper(void* arg) {
 }
 UTEST(Threadman, basic) {
     threadman_pool_t *pool = threadman_pool_create(100);
-    int tasks_count = 1000;
-    for (int i = 0; i < tasks_count; i++) {
+    int task_count = 1000;
+    for (int i = 0; i < task_count; i++) {
         threadman_submit_task(pool, basic_helper, (void *) &x);
     }
     threadman_wait(pool);
-    ASSERT_EQ(x, tasks_count);
+    ASSERT_EQ(x, task_count);
 }
