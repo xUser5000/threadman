@@ -1,0 +1,8 @@
+threadman.o
+threadman.tsan.o
+test
+test_tsan
+
+.vscode
+.fleet
+.idea
