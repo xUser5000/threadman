@@ -19,10 +19,10 @@ test: test.c threadman.o
 
 .PHONY: valgrind
 valgrind: test
-	valgrind --leak-check=yes ./test
+	$(VALGRIND) ./test
 
-.PHONY: tsan
-tsan:
+.PHONY: thread_sanitizer
+thread_sanitizer:
 	$(CC) $(DEBUG_FLAGS) $(CFLAGS) -fsanitize=thread -c threadman.c -o threadman.tsan.o
 	$(CC) $(DEBUG_FLAGS) -fsanitize=thread -o test_tsan test.c threadman.tsan.o
 	./test_tsan
