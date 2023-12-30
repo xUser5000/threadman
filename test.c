@@ -21,4 +21,5 @@ UTEST(Threadman, basic) {
     }
     threadman_wait(pool);
     ASSERT_EQ(x, task_count);
+    threadman_pool_free(pool);
 }

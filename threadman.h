@@ -26,6 +26,7 @@ typedef struct threadman_pool {
     pthread_t threads[MAX_THREADS];
     int thread_count;
     int pending_tasks_count;
+    bool terminate_workers;
     pthread_cond_t worker_cond;
     pthread_cond_t pool_cond;
     pthread_mutex_t pool_mutex;

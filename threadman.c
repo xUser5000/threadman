@@ -9,6 +9,12 @@ void *worker_func(void *arg) {
     threadman_pool_t *pool = (threadman_pool_t *) arg;
     while (true) {
         pthread_mutex_lock(&pool->pool_mutex);
+        
+        if (pool->terminate_workers) {
+            pthread_mutex_unlock(&pool->pool_mutex);
+            pthread_exit(NULL);
+        }
+
         threadman_task_t *task = NULL;
         for (int i = 0; i < pool->task_count; i++) {
             if (pool->tasks[i]->status == QUEUED) {
@@ -16,12 +22,14 @@ void *worker_func(void *arg) {
                 break;
             }
         }
+        
         if (task == NULL) {
             pthread_cond_wait(&pool->worker_cond, &pool->pool_mutex);
             pthread_mutex_unlock(&pool->pool_mutex);
             continue;
         }
         task->status = RUNNING;
+
         pthread_mutex_unlock(&pool->pool_mutex);
 
         task->func(task->args);
@@ -50,6 +58,7 @@ threadman_pool_t *threadman_pool_create(int thread_count) {
     pool->task_count = 0;
     pool->pending_tasks_count = 0;
     pool->thread_count = thread_count;
+    pool->terminate_workers = false;
     for (int i = 0; i < thread_count; i++) {
         pthread_create(&pool->threads[i], NULL, worker_func, (void *) pool);
     }
@@ -91,5 +100,17 @@ void threadman_wait(threadman_pool_t *pool) {
 }
 
 void threadman_pool_free(threadman_pool_t *pool) {
-
+    pthread_mutex_lock(&pool->pool_mutex);
+    pool->terminate_workers = true;
+    pthread_mutex_unlock(&pool->pool_mutex);
+    for (int i = 0; i < pool->thread_count; i++) {
+        pthread_cond_signal(&pool->worker_cond);
+    }
+    for (int i = 0; i < pool->thread_count; i++) {
+        pthread_join(pool->threads[i], NULL);
+    }
+    for (int i = 0; i < pool->task_count; i++) {
+        free(pool->tasks[i]);
+    }
+    free(pool);
 }
