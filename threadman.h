@@ -1,7 +1,6 @@
 #pragma once
 
 #include<stdbool.h>
-#include<pthread.h>
 
 #define MAX_TASKS 1024
 #define MAX_THREADS 1024
