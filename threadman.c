@@ -47,6 +47,7 @@ threadman_pool_t *threadman_pool_create(int thread_count) {
         perror("failed to initialize thread pool\n");
     }
 
+    pool->task_count = 0;
     pool->pending_tasks_count = 0;
     pool->thread_count = thread_count;
     for (int i = 0; i < thread_count; i++) {
