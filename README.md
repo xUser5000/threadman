@@ -47,7 +47,7 @@ int main(void) {
     
     int task_count = 1000;
     for (int i = 0; i < task_count; i++) {
-        threadman_submit_task(pool, basic_helper, (void *) &x);
+        threadman_submit_task(pool, concurrent_func, NULL);
     }
     threadman_wait(pool);
     threadman_pool_free(pool);
