@@ -7,7 +7,7 @@
 UTEST_MAIN();
 
 pthread_mutex_t basic_mutex = PTHREAD_MUTEX_INITIALIZER;
-int x = 0;
+volatile int x = 0;
 void basic_helper(void* arg) {
     pthread_mutex_lock(&basic_mutex);
     x++;
