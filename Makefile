@@ -17,6 +17,7 @@ threadman.o: threadman.h threadman.c
 queue.o: queue.c queue.c
 	$(CC) $(DEBUG_FLAGS) $(CFLAGS) -c queue.c -o queue.o
 
+.PHONY: test
 test:
 	make thread_sanitizer
 	make valgrind
