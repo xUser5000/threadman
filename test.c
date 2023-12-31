@@ -15,7 +15,7 @@ void basic_helper(void* arg) {
 }
 UTEST(Threadman, basic) {
     threadman_pool_t *pool = threadman_pool_create(100);
-    int task_count = 1000;
+    int task_count = 1 << 20;
     for (int i = 0; i < task_count; i++) {
         threadman_submit_task(pool, basic_helper, (void *) &x);
     }
