@@ -17,11 +17,13 @@ threadman.o: threadman.h threadman.c
 queue.o: queue.c queue.c
 	$(CC) $(DEBUG_FLAGS) $(CFLAGS) -c queue.c -o queue.o
 
-test: test.c threadman.o queue.o
-	$(CC) $(DEBUG_FLAGS) -o test test.c threadman.o queue.o
+test:
+	make thread_sanitizer
+	make valgrind
 
 .PHONY: valgrind
-valgrind: test
+valgrind: test.c threadman.o queue.o
+	$(CC) $(DEBUG_FLAGS) -o test test.c threadman.o queue.o
 	$(VALGRIND) ./test
 
 .PHONY: thread_sanitizer
