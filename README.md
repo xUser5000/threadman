@@ -8,6 +8,57 @@ Threadman is a statically-linked threadpool library in C. Under the hood, it mak
 - [x] Wait for all in-progress tasks to finish
 - [x] Free all resources (including threads)
 
+# API
+
+```c
+#define MAX_THREADS 1024
+
+typedef struct threadman_pool_t threadman_pool_t;
+
+typedef void (*threadman_func_t)(void* args);
+
+/* create a new thread pool with a `thread_count` worker threads */
+threadman_pool_t *threadman_pool_create(int thread_count);
+
+/* submit task to the threadpool */
+bool threadman_submit_task(threadman_pool_t *pool, threadman_func_t func, void* args);
+
+/* wait for all tasks to finish */
+void threadman_wait(threadman_pool_t *pool);
+
+/* deallocate all resources of the threadpool */
+void threadman_pool_free(threadman_pool_t *pool);
+```
+
+
+
+# Example
+
+```c
+#include "threadman.h"
+
+void concurrent_func(void* arg) {
+    // do some fancy concurrent programming
+}
+
+int main(void) {
+    int WORKER_THREADS = 12;
+    threadman_pool_t *pool = threadman_pool_create(WORKER_THREADS);
+    
+    int task_count = 1000;
+    for (int i = 0; i < task_count; i++) {
+        threadman_submit_task(pool, basic_helper, (void *) &x);
+    }
+    threadman_wait(pool);
+    threadman_pool_free(pool);
+    
+    return 0;
+}
+
+```
+
+
+
 # TODO
 - [ ] Support lazy creation of threads
 - [ ] Reduce locking contention
