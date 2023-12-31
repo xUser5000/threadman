@@ -52,8 +52,7 @@ bool queue_empty(queue_t *q) {
 
 void *queue_pop(queue_t *q) {
     if (q->size == 0) {
-        perror("cannot pop from an empty queue\n");
-        exit(1);
+        return NULL;
     }
 
     node_t *old_head = q->head;
