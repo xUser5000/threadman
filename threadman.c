@@ -4,16 +4,15 @@
 #include<stdio.h>
 
 #include "threadman.h"
+#include "queue.h"
 
 typedef struct {
     threadman_func_t func;
     void *args;
-    threadman_task_status_t status;
 } threadman_task_t;
 
 struct threadman_pool_t {
-    threadman_task_t *tasks[MAX_TASKS];
-    int task_count;
+    queue_t *tasks_q;
     pthread_t threads[MAX_THREADS];
     int thread_count;
     int pending_tasks_count;
@@ -33,27 +32,20 @@ void *worker_func(void *arg) {
             pthread_exit(NULL);
         }
 
-        threadman_task_t *task = NULL;
-        for (int i = 0; i < pool->task_count; i++) {
-            if (pool->tasks[i]->status == QUEUED) {
-                task = pool->tasks[i];
-                break;
-            }
-        }
+        threadman_task_t *task = queue_pop(pool->tasks_q);
         
         if (task == NULL) {
             pthread_cond_wait(&pool->worker_cond, &pool->pool_mutex);
             pthread_mutex_unlock(&pool->pool_mutex);
             continue;
         }
-        task->status = RUNNING;
 
         pthread_mutex_unlock(&pool->pool_mutex);
 
         task->func(task->args);
+        free(task);
 
         pthread_mutex_lock(&pool->pool_mutex);
-        task->status = FINISHED;
         pool->pending_tasks_count--;
         if (pool->pending_tasks_count == 0) {
             pthread_cond_signal(&pool->pool_cond);
@@ -73,7 +65,7 @@ threadman_pool_t *threadman_pool_create(int thread_count) {
         perror("failed to initialize thread pool\n");
     }
 
-    pool->task_count = 0;
+    pool->tasks_q = queue_create();
     pool->pending_tasks_count = 0;
     pool->thread_count = thread_count;
     pool->terminate_workers = false;
@@ -88,18 +80,11 @@ threadman_pool_t *threadman_pool_create(int thread_count) {
 bool threadman_submit_task(threadman_pool_t *pool, threadman_func_t func, void* args) {
     pthread_mutex_lock(&pool->pool_mutex);
 
-    if (pool->task_count == MAX_TASKS) {
-        pthread_mutex_unlock(&pool->pool_mutex);
-        return false;
-    }
-
     threadman_task_t *task = (threadman_task_t *) malloc(sizeof(threadman_task_t));
     task->func = func;
     task->args = args;
-    task->status = QUEUED;
     
-    pool->tasks[pool->task_count] = task;
-    pool->task_count++;
+    queue_push(pool->tasks_q, task);
     pool->pending_tasks_count++;
 
     pthread_mutex_unlock(&pool->pool_mutex);
@@ -130,8 +115,10 @@ void threadman_pool_free(threadman_pool_t *pool) {
     for (int i = 0; i < pool->thread_count; i++) {
         pthread_join(pool->threads[i], NULL);
     }
-    for (int i = 0; i < pool->task_count; i++) {
-        free(pool->tasks[i]);
+    while(!queue_empty(pool->tasks_q)) {
+        void *front = queue_pop(pool->tasks_q);
+        free(front);
     }
+    free(pool->tasks_q);
     free(pool);
 }

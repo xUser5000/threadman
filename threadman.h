@@ -2,16 +2,9 @@
 
 #include<stdbool.h>
 
-#define MAX_TASKS 1024
 #define MAX_THREADS 1024
 
 typedef struct threadman_pool_t threadman_pool_t;
-
-typedef enum threadman_task_status {
-    QUEUED = 0,
-    RUNNING = 1,
-    FINISHED = 2
-} threadman_task_status_t;
 
 typedef void (*threadman_func_t)(void* args);
 
