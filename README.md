@@ -4,9 +4,9 @@ Threadman is a statically-linked threadpool library in C. Under the hood, it mak
 
 # Features
 - [x] Specify a fixed number of threads that get reused
-- [ ] Unlimited queue size
-- [ ] Wait for all in-progress tasks to finish
-- [ ] Free all resources (including threads)
+- [x] Unlimited queue size
+- [x] Wait for all in-progress tasks to finish
+- [x] Free all resources (including threads)
 
 # TODO
 - [ ] Support lazy creation of threads
