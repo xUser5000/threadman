@@ -2,6 +2,8 @@ threadman.o
 threadman.tsan.o
 test
 test_tsan
+queue.o
+queue.tsan.o
 
 .vscode
 .fleet

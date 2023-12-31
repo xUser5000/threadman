@@ -12,10 +12,13 @@ BDIR=build
 VALGRIND=valgrind --leak-check=yes
 
 threadman.o: threadman.h threadman.c
-	$(CC) $(DEBUG_FLAGS) $(CFLAGS) -c threadman.c -o threadman.o
+	$(CC) $(DEBUG_FLAGS) $(CFLAGS) -c -o threadman.o threadman.c
 
-test: test.c threadman.o
-	$(CC) $(DEBUG_FLAGS) -o test test.c threadman.o
+queue.o: queue.c queue.c
+	$(CC) $(DEBUG_FLAGS) $(CFLAGS) -c queue.c -o queue.o
+
+test: test.c threadman.o queue.o
+	$(CC) $(DEBUG_FLAGS) -o test test.c threadman.o queue.o
 
 .PHONY: valgrind
 valgrind: test
@@ -24,9 +27,10 @@ valgrind: test
 .PHONY: thread_sanitizer
 thread_sanitizer:
 	$(CC) $(DEBUG_FLAGS) $(CFLAGS) -fsanitize=thread -c threadman.c -o threadman.tsan.o
-	$(CC) $(DEBUG_FLAGS) -fsanitize=thread -o test_tsan test.c threadman.tsan.o
+	$(CC) $(DEBUG_FLAGS) $(CFLAGS) -fsanitize=thread -c queue.c -o queue.tsan.o
+	$(CC) $(DEBUG_FLAGS) -fsanitize=thread -o test_tsan test.c threadman.tsan.o queue.tsan.o
 	./test_tsan
 
 .PHONY: clean
 clean:
-	rm -rf threadman.o threadman.tsan.o test test_tsan
+	rm -rf threadman.o threadman.tsan.o test test_tsan queue.o queue.tsan.o
